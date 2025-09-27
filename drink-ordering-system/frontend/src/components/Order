@@ -1,0 +1,71 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Order = () => {
+    const [drinks, setDrinks] = useState([]);
+    const [selectedDrink, setSelectedDrink] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const [orderHistory, setOrderHistory] = useState([]);
+
+    useEffect(() => {
+        // Fetch available drinks from the backend
+        const fetchDrinks = async () => {
+            try {
+                const response = await axios.get('/api/drinks');
+                setDrinks(response.data);
+            } catch (error) {
+                console.error('Error fetching drinks:', error);
+            }
+        };
+
+        fetchDrinks();
+    }, []);
+
+    const handleOrder = async () => {
+        if (!selectedDrink || quantity <= 0) return;
+
+        try {
+            const response = await axios.post('/api/orders', {
+                drink: selectedDrink,
+                quantity: quantity,
+            });
+            setOrderHistory([...orderHistory, response.data]);
+            setSelectedDrink('');
+            setQuantity(1);
+        } catch (error) {
+            console.error('Error placing order:', error);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Order Drinks</h2>
+            <select value={selectedDrink} onChange={(e) => setSelectedDrink(e.target.value)}>
+                <option value="">Select a drink</option>
+                {drinks.map((drink) => (
+                    <option key={drink.id} value={drink.name}>
+                        {drink.name}
+                    </option>
+                ))}
+            </select>
+            <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                min="1"
+            />
+            <button onClick={handleOrder}>Order</button>
+
+            <h3>Order History</h3>
+            <ul>
+                {orderHistory.map((order, index) => (
+                    <li key={index}>
+                        {order.quantity} x {order.drink}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default Order;

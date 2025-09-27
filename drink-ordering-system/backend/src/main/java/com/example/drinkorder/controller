@@ -1,0 +1,47 @@
+package com.example.drinkorder.controller;
+
+import com.example.drinkorder.model.Drink;
+import com.example.drinkorder.service.DrinkService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/drinks")
+public class DrinkController {
+
+    @Autowired
+    private DrinkService drinkService;
+
+    @GetMapping
+    public ResponseEntity<List<Drink>> getAllDrinks() {
+        List<Drink> drinks = drinkService.getAllDrinks();
+        return ResponseEntity.ok(drinks);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Drink> getDrinkById(@PathVariable Long id) {
+        Drink drink = drinkService.getDrinkById(id);
+        return ResponseEntity.ok(drink);
+    }
+
+    @PostMapping
+    public ResponseEntity<Drink> createDrink(@RequestBody Drink drink) {
+        Drink createdDrink = drinkService.createDrink(drink);
+        return ResponseEntity.status(201).body(createdDrink);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Drink> updateDrink(@PathVariable Long id, @RequestBody Drink drink) {
+        Drink updatedDrink = drinkService.updateDrink(id, drink);
+        return ResponseEntity.ok(updatedDrink);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDrink(@PathVariable Long id) {
+        drinkService.deleteDrink(id);
+        return ResponseEntity.noContent().build();
+    }
+}
